@@ -40,86 +40,80 @@ class BeerCatalogueApplicationTests {
 	public void shouldReturnRepositoryIndex() throws Exception {
 
 		mockMvc.perform(get("/")).andDo(print()).andExpect(status().isOk()).andExpect(
-				jsonPath("$._links.people").exists());
+				jsonPath("$._links.beers").exists());
 	}
 
 	@Test
 	public void shouldCreateEntity() throws Exception {
+		
+		MvcResult mvcResult = mockMvc.perform(post("/manufacturers").content(
+				"{\"name\": \"Damm\", \"nationality\":\"spanish\"}")).andExpect(
+						status().isCreated()).andReturn();
+		
+		String manufacturerLocation = mvcResult.getResponse().getHeader("Location");
 
-		mockMvc.perform(post("/people").content(
-				"{\"firstName\": \"Frodo\", \"lastName\":\"Baggins\"}")).andExpect(
+		mockMvc.perform(post("/beers").content(
+				"{\"name\": \"Xiveca\", \"graduation\":4,\"type\":\"Lager\",\"description\":\"Blond soft Lager\",\"manufacturer\":\""+manufacturerLocation+"\"}")).andExpect(
 						status().isCreated()).andExpect(
-								header().string("Location", containsString("people/")));
+								header().string("Location", containsString("beers/")));
+		
 	}
 
 	@Test
 	public void shouldRetrieveEntity() throws Exception {
 
-		MvcResult mvcResult = mockMvc.perform(post("/people").content(
-				"{\"firstName\": \"Frodo\", \"lastName\":\"Baggins\"}")).andExpect(
+		MvcResult mvcResult = mockMvc.perform(post("/beers").content(
+				"{\"name\": \"5 estrellas\", \"graduation\":5,\"type\":\"Lager\",\"description\":\"Special for cañas\"}")).andExpect(
 						status().isCreated()).andReturn();
 
 		String location = mvcResult.getResponse().getHeader("Location");
 		mockMvc.perform(get(location)).andExpect(status().isOk()).andExpect(
-				jsonPath("$.firstName").value("Frodo")).andExpect(
-						jsonPath("$.lastName").value("Baggins"));
+				jsonPath("$.name").value("5 estrellas")).andExpect(
+						jsonPath("$.type").value("Lager"));
 	}
 
-	@Test
-	public void shouldQueryEntity() throws Exception {
-
-		mockMvc.perform(post("/people").content(
-				"{ \"firstName\": \"Frodo\", \"lastName\":\"Baggins\"}")).andExpect(
-						status().isCreated());
-
-		mockMvc.perform(
-				get("/people/search/findByLastName?name={name}", "Baggins")).andExpect(
-						status().isOk()).andExpect(
-								jsonPath("$._embedded.people[0].firstName").value(
-										"Frodo"));
-	}
 
 	@Test
 	public void shouldUpdateEntity() throws Exception {
 
-		MvcResult mvcResult = mockMvc.perform(post("/people").content(
-				"{\"firstName\": \"Frodo\", \"lastName\":\"Baggins\"}")).andExpect(
+		MvcResult mvcResult = mockMvc.perform(post("/beers").content(
+				"{\"name\": \"5 estrellas\", \"graduation\":7,\"type\":\"Lager\",\"description\":\"Special for cañas\"}")).andExpect(
 						status().isCreated()).andReturn();
 
 		String location = mvcResult.getResponse().getHeader("Location");
 
 		mockMvc.perform(put(location).content(
-				"{\"firstName\": \"Bilbo\", \"lastName\":\"Baggins\"}")).andExpect(
+				"{\"name\": \"5 estrellas\", \"graduation\":6,\"type\":\"Lager\",\"description\":\"Special for cañas y tapas\"}")).andExpect(
 						status().isNoContent());
 
 		mockMvc.perform(get(location)).andExpect(status().isOk()).andExpect(
-				jsonPath("$.firstName").value("Bilbo")).andExpect(
-						jsonPath("$.lastName").value("Baggins"));
+				jsonPath("$.name").value("5 estrellas")).andExpect(
+						jsonPath("$.graduation").value("6"));
 	}
 
 	@Test
 	public void shouldPartiallyUpdateEntity() throws Exception {
 
-		MvcResult mvcResult = mockMvc.perform(post("/people").content(
-				"{\"firstName\": \"Frodo\", \"lastName\":\"Baggins\"}")).andExpect(
+		MvcResult mvcResult = mockMvc.perform(post("/beers").content(
+				"{\"name\": \"5 estrellas\", \"graduation\":7,\"type\":\"Lager\",\"description\":\"Special for cañas\"}")).andExpect(
 						status().isCreated()).andReturn();
 
 		String location = mvcResult.getResponse().getHeader("Location");
 
 		mockMvc.perform(
-				patch(location).content("{\"firstName\": \"Bilbo Jr.\"}")).andExpect(
+				patch(location).content("{\"graduation\": 4}")).andExpect(
 						status().isNoContent());
 
 		mockMvc.perform(get(location)).andExpect(status().isOk()).andExpect(
-				jsonPath("$.firstName").value("Bilbo Jr.")).andExpect(
-						jsonPath("$.lastName").value("Baggins"));
+				jsonPath("$.name").value("5 estrellas")).andExpect(
+						jsonPath("$.graduation").value("4"));
 	}
 
 	@Test
 	public void shouldDeleteEntity() throws Exception {
 
-		MvcResult mvcResult = mockMvc.perform(post("/people").content(
-				"{ \"firstName\": \"Bilbo\", \"lastName\":\"Baggins\"}")).andExpect(
+		MvcResult mvcResult = mockMvc.perform(post("/beers").content(
+				"{\"name\": \"5 estrellas\", \"graduation\":4,\"type\":\"Lager\",\"description\":\"Special for cañas\"}")).andExpect(
 						status().isCreated()).andReturn();
 
 		String location = mvcResult.getResponse().getHeader("Location");

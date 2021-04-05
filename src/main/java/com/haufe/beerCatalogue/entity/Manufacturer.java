@@ -1,12 +1,9 @@
 package com.haufe.beerCatalogue.entity;
 
-import java.util.List;
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
 
 @Entity
 public class Manufacturer {
@@ -16,9 +13,7 @@ public class Manufacturer {
 	private long id;
 	
 	private String name;
-	
-    @OneToMany(mappedBy = "manufacturer")
-    private List<Beer> beers;
+	private String nationality;
 
 	public long getId() {
 		return id;
@@ -36,12 +31,12 @@ public class Manufacturer {
 		this.name = name;
 	}
 	
-	public List<Beer> getBeers() {
-		return beers;
+    public String getNationality() {
+		return nationality;
 	}
 
-	public void setBeers(List<Beer> beers) {
-		this.beers = beers;
+	public void setNationality(String nationality) {
+		this.nationality = nationality;
 	}
 	
 

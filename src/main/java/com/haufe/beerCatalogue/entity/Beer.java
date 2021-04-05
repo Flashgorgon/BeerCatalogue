@@ -15,13 +15,26 @@ public class Beer {
 	private long id;
 
 	private String name;
+	private Integer graduation;
 	private String type;
-	private String nationality;
+	private String description;
 	
 	@ManyToOne
     @JoinColumn(name="manufacturer_id")
 	private Manufacturer manufacturer;
 	
+	public Integer getGraduation() {
+		return graduation;
+	}
+	public void setGraduation(Integer graduation) {
+		this.graduation = graduation;
+	}
+	public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		this.description = description;
+	}
 	public long getId() {
 		return id;
 	}
@@ -39,12 +52,6 @@ public class Beer {
 	}
 	public void setType(String type) {
 		this.type = type;
-	}
-	public String getNationality() {
-		return nationality;
-	}
-	public void setNationality(String nationality) {
-		this.nationality = nationality;
 	}
 	public Manufacturer getManufacturer() {
 		return manufacturer;

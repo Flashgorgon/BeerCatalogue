@@ -1,0 +1,57 @@
+Beer Catalogue 
+
+This file shows how to use the API created with Spring Data REST
+
+Defining the domain
+
+	For this basic Spring Data applicattion, we need to define some object like Beer and Manufacturer.
+	They're related by one-to-many relation as one Manufacture can have several Beers, but one Beer can only have one Manufacturer
+
+
+
+Defining the repositories
+
+	We have to define one repository for each object.
+	The repositories extend the PagingAndSortingRepository, so we can use pagination and sorting, and also the CrudRepository permits search very easily for any attribute of the objects 
+	
+
+Run and test
+
+	In the file BeerCatalogueApplication we can find the data is proloaded.
+
+Run the app 
+
+	$ mvn spring-boot:run
+
+List of beers:
+
+	$ curl localhost:8080/beers
+
+List of manufacturers
+
+	$ curl localhost:8080/manufacturers
+
+Parameters for paging,sorting 
+
+	page: The page number to access (0 indexed, defaults to 0).
+	size: The page size requested (defaults to 20).
+	sort: A collection of sort directives in the format ($propertyname,)+[asc|desc]?
+
+Create a new Manufacturer
+
+	$ curl -i -X POST -d '{"name": "Mahou","nationality": "Spain"}' -H "Content-Type: application/json" localhost:8080/manufacturers
+	
+	It returned a location http://localhost:8080/manufacturers/10, so we can relate to the resource we just created with this link .
+
+Create a new Beer
+
+	$ curl -X POST -d '{"name": "5 estrellas", "graduation":5, "type":"Lager", "description":"Blond lager", "manufacturer":"http://localhost:8080/manufacturers/10"}' -H "Content-Type: application/json" localhost:8080/beers
+	
+
+Search for any of the beer attributes like name, type, nationality or manufacturer
+
+	$ curl http://localhost:8080/search/type/Lager
+	$ curl http://localhost:8080/search/manufacturer/Heineken
+	
+	Returns the list of beers that match any of these parameters
+

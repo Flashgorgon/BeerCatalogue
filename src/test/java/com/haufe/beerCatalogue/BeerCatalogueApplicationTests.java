@@ -23,6 +23,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.haufe.beerCatalogue.entity.Beer;
 import com.haufe.beerCatalogue.repository.BeerRepository;
 
@@ -35,6 +36,9 @@ class BeerCatalogueApplicationTests {
 
 	@Autowired
 	private BeerRepository beerRepository;
+	
+	@Autowired
+	private ObjectMapper objectMapper;
 	
 
 	@BeforeEach
@@ -114,9 +118,9 @@ class BeerCatalogueApplicationTests {
 				patch(location).content("{\"graduation\": 4}")).andExpect(
 						status().isNoContent());
 
-		mockMvc.perform(get(location)).andExpect(status().isOk()).andExpect(
-				jsonPath("$.name").value("5 estrellas")).andExpect(
-						jsonPath("$.graduation").value("4"));
+		mockMvc.perform(get(location)).andExpect(status().isOk())
+			.andExpect(jsonPath("$.name").value("5 estrellas"))
+			.andExpect(jsonPath("$.graduation").value("4"));
 	}
 
 	@Test
@@ -133,10 +137,10 @@ class BeerCatalogueApplicationTests {
 	}
 	
 	@Test
-	public void searchByManufacturerNameReturnsOneBeer() throws Exception {
+	public void searchByManufacturerNameOk() throws Exception {
 
 		MvcResult mvcResult = mockMvc.perform(post("/manufacturers")
-				.content("{\"name\": \"Damm\", \"nationality\":\"spanish\"}"))
+				.content("{\"name\": \"Damm\", \"nationality\":\"Spain\"}"))
 				.andExpect(status().isCreated())
 				.andReturn();
 		
@@ -148,28 +152,13 @@ class BeerCatalogueApplicationTests {
 				.andExpect(status().isCreated())
 				.andExpect(header().string("Location", containsString("beers/")));
 		
-		List<Beer> beerManName = beerRepository.findByManufacturer_Name("Damm");
-		assertThat(beerManName).hasSize(1);
+
+		mockMvc.perform(get("/search/manufacturer/Damm"))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$[0].name").value("Xiveca"))
+			.andExpect(jsonPath("$[0].graduation").value("4"));	
 	}
 	
-	@Test
-	public void searchByManufacturerNameReturnsZeroBeer() throws Exception {
-
-		MvcResult mvcResult = mockMvc.perform(post("/manufacturers")
-				.content("{\"name\": \"Damm\", \"nationality\":\"spanish\"}"))
-				.andExpect(status().isCreated())
-				.andReturn();
-		
-		String manufacturerLocation = mvcResult.getResponse().getHeader("Location");
-
-		mockMvc.perform(post("/beers")
-				.content("{\"name\": \"Xiveca\", \"graduation\":4,\"type\":\"Lager\",\"description\":\"Blond soft Lager\",\"manufacturer\":\""+manufacturerLocation+"\"}")
-				.contentType(MediaType.APPLICATION_JSON))
-				.andExpect(status().isCreated())
-				.andExpect(header().string("Location", containsString("beers/")));
-		
-		List<Beer> beerManName = beerRepository.findByManufacturer_Name("Heineken");
-		assertThat(beerManName).hasSize(0);
-	}
+	
 	
 }
